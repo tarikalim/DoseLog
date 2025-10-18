@@ -1,0 +1,8 @@
+root = "."
+tmp_dir = "tmp"
+
+[build]
+bin = "./tmp/main"
+cmd = "go build -o ./tmp/main ./cmd/server"
+exclude_dir = ["tmp", "docs", "migrations", "scripts"]
+exclude_regex = ["_test.go"]
