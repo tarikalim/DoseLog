@@ -15,6 +15,7 @@ type UserMedicationCreateRequest struct {
 	MedicationID uuid.UUID        `json:"medication_id" validate:"required"`
 	BoxesOwned   int              `json:"boxes_owned"   validate:"required,min=1"`
 	Schedules    []IntakeSchedule `json:"schedules"     validate:"required,min=1,dive"`
+	DurationDays int              `json:"duration_days" validate:"required,min=1"`
 }
 
 type UserMedicationUpdateRequest struct {
@@ -32,4 +33,14 @@ type UserMedicationResponse struct {
 	StartAt      time.Time        `json:"start_at"`
 	Active       bool             `json:"active"`
 	CreatedAt    time.Time        `json:"created_at"`
+}
+
+type UserMedicationStatsResponse struct {
+	TotalPills             int       `json:"total_pills"`
+	UsedPills              float64   `json:"used_pills"`
+	RemainingPills         float64   `json:"remaining_pills"`
+	DailyConsumption       float64   `json:"daily_consumption"`
+	EstimatedDaysRemaining int       `json:"estimated_days_remaining"`
+	EstimatedEndDate       time.Time `json:"estimated_end_date"`
+	WarningLevel           string    `json:"warning_level"` // "normal", "warning", "critical"
 }

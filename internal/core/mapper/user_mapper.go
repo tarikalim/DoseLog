@@ -7,12 +7,12 @@ import (
 	"time"
 )
 
-// UserToEntity converts UserCreateRequest to User entity
-func UserToEntity(req *dto.UserCreateRequest) *entity.User {
+// UserToEntity converts UserCreateRequest to User entity with hashed password
+func UserToEntity(req *dto.UserCreateRequest, hashedPassword string) *entity.User {
 	return &entity.User{
 		ID:        uuid.New(),
 		Email:     req.Email,
-		Password:  req.Password,
+		Password:  hashedPassword,
 		CreatedAt: time.Now(),
 	}
 }

@@ -10,6 +10,7 @@ import (
 )
 
 type MedicationLogRepository interface {
+	Create(ctx context.Context, log *entity.MedicationLog) error
 	GetByID(ctx context.Context, id uuid.UUID) (*entity.MedicationLog, error)
 	GetByUserMedicationID(ctx context.Context, userMedicationID uuid.UUID) ([]*entity.MedicationLog, error)
 	GetByUserMedicationIDAndDateRange(ctx context.Context, userMedicationID uuid.UUID, start, end time.Time) ([]*entity.MedicationLog, error)
@@ -22,6 +23,15 @@ type medicationLogRepository struct {
 
 func NewMedicationLogRepository(db *sqlx.DB) MedicationLogRepository {
 	return &medicationLogRepository{db: db}
+}
+
+func (r *medicationLogRepository) Create(ctx context.Context, log *entity.MedicationLog) error {
+	query := `
+		INSERT INTO medication_logs (id, user_medication_id, time_slot, planned_dose, taken, timestamp)
+		VALUES ($1, $2, $3, $4, $5, $6)
+	`
+	_, err := r.db.ExecContext(ctx, query, log.ID, log.UserMedicationID, log.TimeSlot, log.PlannedDose, log.Taken, log.Timestamp)
+	return err
 }
 
 func (r *medicationLogRepository) GetByID(ctx context.Context, id uuid.UUID) (*entity.MedicationLog, error) {

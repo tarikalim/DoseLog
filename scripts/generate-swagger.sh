@@ -6,15 +6,21 @@ if ! command -v swag &> /dev/null; then
     go install github.com/swaggo/swag/cmd/swag@latest
 fi
 
+# Use go run to execute swag if not in PATH
+SWAG_CMD="swag"
+if ! command -v swag &> /dev/null; then
+    SWAG_CMD="$(go env GOPATH)/bin/swag"
+fi
+
 # Generate swagger documentation
 echo "Generating swagger documentation..."
-swag init \
+$SWAG_CMD init \
     --parseDependency \
     --parseInternal \
     --parseDepth 2 \
     --output ./docs \
-    --dir ./pkg/servers/rest \
-    --generalInfo rest.go \
+    --dir ./cmd,./internal/handler \
+    --generalInfo main.go \
     --propertyStrategy camelcase \
     --parseFuncBody
 

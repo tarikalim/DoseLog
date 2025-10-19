@@ -11,7 +11,7 @@ sec: ## Run go security check
 .PHONY: generate-docs
 generate-docs: ## Generate Swagger documentation
 	@echo "Generating Swagger documentation..."
-	@swag init --parseDependency --parseInternal --parseDepth 2 --output ./docs --dir ./pkg/servers/rest --generalInfo rest.go --propertyStrategy camelcase --parseFuncBody
+	@./scripts/generate-swagger.sh
 
 .PHONY: setup
 setup: ## Install dependencies and setup the project
@@ -23,13 +23,13 @@ setup: ## Install dependencies and setup the project
 .PHONY: run
 run: ## Run the development server
 	@echo "Running server..."
-	@go run ./cmd/server/main.go
+	@go run ./cmd/main.go
 
 .PHONY: build
 build: ## Build the server binary
 	@echo "Building server..."
-	@go build -o bin/doc-service ./cmd/server/main.go
-	@echo "Build completed. Binary available at: bin/doc-service"
+	@go build -o bin/doselog ./cmd/main.go
+	@echo "Build completed. Binary available at: bin/doselog"
 
 
 install-air: ## Install air for live reloading
