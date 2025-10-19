@@ -14,25 +14,24 @@ END$$;
 -- USERS TABLE
 -- ==========================================================
 CREATE TABLE IF NOT EXISTS users (
-                                     id SERIAL PRIMARY KEY,
-                                     username TEXT UNIQUE NOT NULL,
-                                     password_hash TEXT NOT NULL,
-                                     email TEXT,
+                                     id UUID PRIMARY KEY,
+                                     password TEXT NOT NULL,
+                                     email TEXT UNIQUE NOT NULL,
                                      created_at TIMESTAMPTZ DEFAULT now()
     );
 
-CREATE INDEX IF NOT EXISTS idx_users_username ON users(username);
+CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
 
 -- ==========================================================
 -- MEDICATIONS TABLE (General drug definitions)
 -- ==========================================================
 CREATE TABLE IF NOT EXISTS medications (
-                                           id SERIAL PRIMARY KEY,
+                                           id UUID PRIMARY KEY,
                                            name TEXT NOT NULL,
                                            description TEXT,
                                            manufacturer TEXT,
-                                           form TEXT,
-                                           strength_mg INT,
+                                           form TEXT NOT NULL,
+                                           strength_mg REAL,
                                            pills_per_box INT NOT NULL,
                                            meal_relation meal_relation DEFAULT 'irrelevant',
                                            created_at TIMESTAMPTZ DEFAULT now()
@@ -44,13 +43,12 @@ CREATE UNIQUE INDEX IF NOT EXISTS idx_medications_name ON medications(name);
 -- USER_MEDICATIONS TABLE (User-specific tracking)
 -- ==========================================================
 CREATE TABLE IF NOT EXISTS user_medications (
-                                                id SERIAL PRIMARY KEY,
-                                                user_id INT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-    medication_id INT NOT NULL REFERENCES medications(id) ON DELETE CASCADE,
+                                                id UUID PRIMARY KEY,
+                                                user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    medication_id UUID NOT NULL REFERENCES medications(id) ON DELETE CASCADE,
     boxes_owned INT NOT NULL,
-    daily_dose INT NOT NULL,
-    doses_per_day INT NOT NULL,
-    started_at DATE DEFAULT CURRENT_DATE,
+    schedules JSONB NOT NULL,
+    start_at TIMESTAMPTZ DEFAULT now(),
     active BOOLEAN DEFAULT TRUE,
     created_at TIMESTAMPTZ DEFAULT now(),
     CONSTRAINT uniq_user_medication UNIQUE (user_id, medication_id)
@@ -64,10 +62,10 @@ CREATE INDEX IF NOT EXISTS idx_user_medications_active ON user_medications(activ
 -- MEDICATION_LOGS TABLE (Dose tracking)
 -- ==========================================================
 CREATE TABLE IF NOT EXISTS medication_logs (
-    id SERIAL PRIMARY KEY,
-    user_medication_id INT NOT NULL REFERENCES user_medications(id) ON DELETE CASCADE,
+    id UUID PRIMARY KEY,
+    user_medication_id UUID NOT NULL REFERENCES user_medications(id) ON DELETE CASCADE,
     time_slot TEXT,
-    dose_taken INT NOT NULL,
+    planned_dose DOUBLE PRECISION NOT NULL,
     taken BOOLEAN DEFAULT FALSE,
     timestamp TIMESTAMPTZ DEFAULT now()
     );
