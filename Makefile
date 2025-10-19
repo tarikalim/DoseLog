@@ -6,30 +6,30 @@ help:
 
 sec: ## Run go security check
 	@echo "Running security check"
-	@gosec ./...
+	@cd backend && gosec ./...
 
 .PHONY: generate-docs
 generate-docs: ## Generate Swagger documentation
 	@echo "Generating Swagger documentation..."
-	@./scripts/generate-swagger.sh
+	@cd backend && ./scripts/generate-swagger.sh
 
 .PHONY: setup
 setup: ## Install dependencies and setup the project
 	@echo "Installing Go dependencies..."
-	@go mod download
-	@go mod tidy
+	@cd backend && go mod download
+	@cd backend && go mod tidy
 	@echo "Dependencies installed successfully!"
 
 .PHONY: run
 run: ## Run the development server
 	@echo "Running server..."
-	@go run ./cmd/main.go
+	@cd backend && go run ./cmd/main.go
 
 .PHONY: build
 build: ## Build the server binary
 	@echo "Building server..."
-	@go build -o bin/doselog ./cmd/main.go
-	@echo "Build completed. Binary available at: bin/doselog"
+	@cd backend && go build -o bin/doselog ./cmd/main.go
+	@echo "Build completed. Binary available at: backend/bin/doselog"
 
 
 install-air: ## Install air for live reloading
@@ -43,7 +43,7 @@ run-dev: ## Download air and run server with air
 	@echo "Air installed successfully"
 	@echo "Starting development server with air..."
 ifeq ($(OS),windows)
-	@air -c air/windows.toml
+	@air -c backend/air/windows.toml
 else
-	@air -c air/unix.toml
+	@air -c backend/air/unix.toml
 endif
