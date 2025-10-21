@@ -3,7 +3,7 @@ package main
 import (
 	"backend/config"
 	"backend/internal/db"
-	"backend/internal/handler"
+	"backend/internal/router"
 	"log"
 )
 
@@ -25,10 +25,10 @@ func main() {
 	}
 	defer db.Close()
 
-	router := handler.SetupRouter()
+	r := router.SetupRouter()
 
 	log.Printf("Server starting on port %s", config.ServerPort)
-	if err := router.Run(":" + config.ServerPort); err != nil {
+	if err := r.Run(":" + config.ServerPort); err != nil {
 		log.Fatalf("Failed to start server: %v", err)
 	}
 }

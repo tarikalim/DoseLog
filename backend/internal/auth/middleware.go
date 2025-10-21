@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 )
 
 func AuthMiddleware() gin.HandlerFunc {
@@ -36,4 +37,22 @@ func AuthMiddleware() gin.HandlerFunc {
 
 		c.Next()
 	}
+}
+
+// RequireResourceOwnership checks if the authenticated user owns the resource
+func RequireResourceOwnership(c *gin.Context, resourceUserID uuid.UUID) bool {
+	userID, exists := c.Get("userID")
+	if !exists {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
+		c.Abort()
+		return false
+	}
+
+	if userID.(uuid.UUID) != resourceUserID {
+		c.JSON(http.StatusForbidden, gin.H{"error": "forbidden: access denied"})
+		c.Abort()
+		return false
+	}
+
+	return true
 }

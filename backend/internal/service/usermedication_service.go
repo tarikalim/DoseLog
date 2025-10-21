@@ -24,6 +24,17 @@ func NewUserMedicationService(userMedicationRepo UserMedicationRepository, medic
 	}
 }
 
+func (s *UserMedicationService) GetByID(ctx context.Context, id uuid.UUID) (*dto.UserMedicationResponse, error) {
+	userMedication, err := s.userMedicationRepo.GetByID(ctx, id)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get user medication: %w", err)
+	}
+	if userMedication == nil {
+		return nil, nil
+	}
+	return mapper.UserMedicationFromEntity(userMedication), nil
+}
+
 func (s *UserMedicationService) Create(ctx context.Context, userID uuid.UUID, req *dto.UserMedicationCreateRequest) (*dto.UserMedicationResponse, error) {
 	medication, err := s.medicationService.GetByID(ctx, req.MedicationID)
 	if err != nil {

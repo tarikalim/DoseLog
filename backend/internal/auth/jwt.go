@@ -51,12 +51,3 @@ func ValidateToken(tokenString string) (*Claims, error) {
 
 	return claims, nil
 }
-
-func ExtractUserID(tokenString string) (uuid.UUID, error) {
-	claims, err := ValidateToken(tokenString)
-	if err != nil {
-		return uuid.Nil, err
-	}
-
-	return claims.UserID, nil
-}

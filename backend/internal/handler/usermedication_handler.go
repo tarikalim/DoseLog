@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"backend/internal/auth"
 	"backend/internal/core/dto"
 	"backend/internal/service"
 	"net/http"
@@ -66,6 +67,8 @@ func (h *UserMedicationHandler) Create(c *gin.Context) {
 // @Success      200 {object} dto.UserMedicationResponse
 // @Failure      400 {object} map[string]string
 // @Failure      401 {object} map[string]string
+// @Failure      403 {object} map[string]string
+// @Failure      404 {object} map[string]string
 // @Failure      500 {object} map[string]string
 // @Router       /user-medications/{id} [put]
 func (h *UserMedicationHandler) Update(c *gin.Context) {
@@ -75,19 +78,33 @@ func (h *UserMedicationHandler) Update(c *gin.Context) {
 		return
 	}
 
+	userMedication, err := h.userMedicationService.GetByID(c.Request.Context(), id)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	if userMedication == nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "user medication not found"})
+		return
+	}
+
+	if !auth.RequireResourceOwnership(c, userMedication.UserID) {
+		return
+	}
+
 	var req dto.UserMedicationUpdateRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	userMedication, err := h.userMedicationService.Update(c.Request.Context(), id, &req)
+	updatedUserMedication, err := h.userMedicationService.Update(c.Request.Context(), id, &req)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	c.JSON(http.StatusOK, userMedication)
+	c.JSON(http.StatusOK, updatedUserMedication)
 }
 
 // GetByUserID godoc
@@ -155,12 +172,28 @@ func (h *UserMedicationHandler) GetActiveByUserID(c *gin.Context) {
 // @Success      200 {object} dto.UserMedicationStatsResponse
 // @Failure      400 {object} map[string]string
 // @Failure      401 {object} map[string]string
+// @Failure      403 {object} map[string]string
+// @Failure      404 {object} map[string]string
 // @Failure      500 {object} map[string]string
 // @Router       /user-medications/{id}/stats [get]
 func (h *UserMedicationHandler) GetStats(c *gin.Context) {
 	id, err := uuid.Parse(c.Param("id"))
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid user medication id"})
+		return
+	}
+
+	userMedication, err := h.userMedicationService.GetByID(c.Request.Context(), id)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	if userMedication == nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "user medication not found"})
+		return
+	}
+
+	if !auth.RequireResourceOwnership(c, userMedication.UserID) {
 		return
 	}
 

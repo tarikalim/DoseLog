@@ -20,6 +20,17 @@ func NewMedicationLogService(medicationLogRepo MedicationLogRepository) *Medicat
 	}
 }
 
+func (s *MedicationLogService) GetByID(ctx context.Context, id uuid.UUID) (*dto.MedicationLogResponse, error) {
+	log, err := s.medicationLogRepo.GetByID(ctx, id)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get medication log: %w", err)
+	}
+	if log == nil {
+		return nil, nil
+	}
+	return mapper.MedicationLogFromEntity(log), nil
+}
+
 func (s *MedicationLogService) MarkAsTaken(ctx context.Context, id uuid.UUID) error {
 	log, err := s.medicationLogRepo.GetByID(ctx, id)
 	if err != nil {

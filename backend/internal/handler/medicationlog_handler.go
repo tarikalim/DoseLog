@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"backend/internal/auth"
 	"backend/internal/service"
 	"net/http"
 
@@ -9,12 +10,14 @@ import (
 )
 
 type MedicationLogHandler struct {
-	medicationLogService *service.MedicationLogService
+	medicationLogService  *service.MedicationLogService
+	userMedicationService *service.UserMedicationService
 }
 
-func NewMedicationLogHandler(medicationLogService *service.MedicationLogService) *MedicationLogHandler {
+func NewMedicationLogHandler(medicationLogService *service.MedicationLogService, userMedicationService *service.UserMedicationService) *MedicationLogHandler {
 	return &MedicationLogHandler{
-		medicationLogService: medicationLogService,
+		medicationLogService:  medicationLogService,
+		userMedicationService: userMedicationService,
 	}
 }
 
@@ -29,12 +32,38 @@ func NewMedicationLogHandler(medicationLogService *service.MedicationLogService)
 // @Success      200 {object} map[string]string
 // @Failure      400 {object} map[string]string
 // @Failure      401 {object} map[string]string
+// @Failure      403 {object} map[string]string
+// @Failure      404 {object} map[string]string
 // @Failure      500 {object} map[string]string
 // @Router       /medication-logs/{id}/mark-taken [put]
 func (h *MedicationLogHandler) MarkAsTaken(c *gin.Context) {
 	id, err := uuid.Parse(c.Param("id"))
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid medication log id"})
+		return
+	}
+
+	log, err := h.medicationLogService.GetByID(c.Request.Context(), id)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	if log == nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "medication log not found"})
+		return
+	}
+
+	userMedication, err := h.userMedicationService.GetByID(c.Request.Context(), log.UserMedicationID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	if userMedication == nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "user medication not found"})
+		return
+	}
+
+	if !auth.RequireResourceOwnership(c, userMedication.UserID) {
 		return
 	}
 
@@ -57,12 +86,28 @@ func (h *MedicationLogHandler) MarkAsTaken(c *gin.Context) {
 // @Success      200 {array} dto.MedicationLogResponse
 // @Failure      400 {object} map[string]string
 // @Failure      401 {object} map[string]string
+// @Failure      403 {object} map[string]string
+// @Failure      404 {object} map[string]string
 // @Failure      500 {object} map[string]string
 // @Router       /medication-logs/user-medication/{user_medication_id} [get]
 func (h *MedicationLogHandler) GetByUserMedicationID(c *gin.Context) {
 	userMedicationID, err := uuid.Parse(c.Param("user_medication_id"))
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid user medication id"})
+		return
+	}
+
+	userMedication, err := h.userMedicationService.GetByID(c.Request.Context(), userMedicationID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	if userMedication == nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "user medication not found"})
+		return
+	}
+
+	if !auth.RequireResourceOwnership(c, userMedication.UserID) {
 		return
 	}
 

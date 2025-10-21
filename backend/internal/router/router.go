@@ -1,8 +1,9 @@
-package handler
+package router
 
 import (
 	"backend/internal/auth"
 	"backend/internal/db"
+	"backend/internal/handler"
 	repository2 "backend/internal/repository"
 	service2 "backend/internal/service"
 
@@ -29,11 +30,11 @@ func SetupRouter() *gin.Engine {
 	medicationLogService := service2.NewMedicationLogService(medicationLogRepo)
 	userMedicationService := service2.NewUserMedicationService(userMedicationRepo, medicationService, medicationLogService)
 
-	authHandler := NewAuthHandler(authService, userService)
-	userHandler := NewUserHandler(userService)
-	medicationHandler := NewMedicationHandler(medicationService)
-	userMedicationHandler := NewUserMedicationHandler(userMedicationService)
-	medicationLogHandler := NewMedicationLogHandler(medicationLogService)
+	authHandler := handler.NewAuthHandler(authService, userService)
+	userHandler := handler.NewUserHandler(userService)
+	medicationHandler := handler.NewMedicationHandler(medicationService)
+	userMedicationHandler := handler.NewUserMedicationHandler(userMedicationService)
+	medicationLogHandler := handler.NewMedicationLogHandler(medicationLogService, userMedicationService)
 
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
