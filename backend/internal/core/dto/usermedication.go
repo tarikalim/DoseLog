@@ -31,6 +31,7 @@ type UserMedicationResponse struct {
 	MedicationID uuid.UUID        `json:"medication_id"`
 	BoxesOwned   int              `json:"boxes_owned"`
 	Schedules    []IntakeSchedule `json:"schedules"`
+	DurationDays int              `json:"duration_days"`
 	StartAt      time.Time        `json:"start_at"`
 	Active       bool             `json:"active"`
 	CreatedAt    time.Time        `json:"created_at"`
@@ -43,5 +44,8 @@ type UserMedicationStatsResponse struct {
 	DailyConsumption       float64   `json:"daily_consumption"`
 	EstimatedDaysRemaining int       `json:"estimated_days_remaining"`
 	EstimatedEndDate       time.Time `json:"estimated_end_date"`
+	PlannedDurationDays    int       `json:"planned_duration_days"`
+	DaysElapsed            int       `json:"days_elapsed"`
+	PlannedDaysRemaining   int       `json:"planned_days_remaining"`
 	WarningLevel           string    `json:"warning_level"` // "normal", "warning", "critical"
 }

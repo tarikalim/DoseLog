@@ -162,6 +162,12 @@ func (s *UserMedicationService) GetStats(ctx context.Context, id uuid.UUID) (*dt
 		warningLevel = "warning"
 	}
 
+	daysElapsed := int(time.Since(userMedication.StartAt).Hours() / 24)
+	plannedDaysRemaining := userMedication.DurationDays - daysElapsed
+	if plannedDaysRemaining < 0 {
+		plannedDaysRemaining = 0
+	}
+
 	return &dto.UserMedicationStatsResponse{
 		TotalPills:             totalPills,
 		UsedPills:              usedPills,
@@ -169,6 +175,9 @@ func (s *UserMedicationService) GetStats(ctx context.Context, id uuid.UUID) (*dt
 		DailyConsumption:       dailyConsumption,
 		EstimatedDaysRemaining: estimatedDaysRemaining,
 		EstimatedEndDate:       estimatedEndDate,
+		PlannedDurationDays:    userMedication.DurationDays,
+		DaysElapsed:            daysElapsed,
+		PlannedDaysRemaining:   plannedDaysRemaining,
 		WarningLevel:           warningLevel,
 	}, nil
 }

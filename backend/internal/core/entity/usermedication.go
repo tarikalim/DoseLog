@@ -18,6 +18,7 @@ type UserMedication struct {
 	MedicationID uuid.UUID        `db:"medication_id"`
 	BoxesOwned   int              `db:"boxes_owned"`
 	Schedules    []IntakeSchedule `db:"schedules"`
+	DurationDays int              `db:"duration_days"`
 	StartAt      time.Time        `db:"start_at"`
 	Active       bool             `db:"active"`
 	CreatedAt    time.Time        `db:"created_at"`
