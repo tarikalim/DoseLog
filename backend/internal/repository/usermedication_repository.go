@@ -33,12 +33,12 @@ func (r *userMedicationRepository) Create(ctx context.Context, um *entity.UserMe
 	}
 
 	query := `
-		INSERT INTO user_medications (id, user_id, medication_id, boxes_owned, schedules, start_at, active, created_at)
-		VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+		INSERT INTO user_medications (id, user_id, medication_id, boxes_owned, schedules, duration_days, start_at, active, created_at)
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
 	`
 	_, err = r.db.ExecContext(ctx, query,
 		um.ID, um.UserID, um.MedicationID, um.BoxesOwned,
-		schedulesJSON, um.StartAt, um.Active, um.CreatedAt)
+		schedulesJSON, um.DurationDays, um.StartAt, um.Active, um.CreatedAt)
 	return err
 }
 
@@ -47,13 +47,13 @@ func (r *userMedicationRepository) GetByID(ctx context.Context, id uuid.UUID) (*
 	var schedulesJSON []byte
 
 	query := `
-		SELECT id, user_id, medication_id, boxes_owned, schedules, start_at, active, created_at
+		SELECT id, user_id, medication_id, boxes_owned, schedules, duration_days, start_at, active, created_at
 		FROM user_medications
 		WHERE id = $1
 	`
 	err := r.db.QueryRowContext(ctx, query, id).Scan(
 		&um.ID, &um.UserID, &um.MedicationID, &um.BoxesOwned,
-		&schedulesJSON, &um.StartAt, &um.Active, &um.CreatedAt)
+		&schedulesJSON, &um.DurationDays, &um.StartAt, &um.Active, &um.CreatedAt)
 
 	if err == sql.ErrNoRows {
 		return nil, nil
@@ -71,7 +71,7 @@ func (r *userMedicationRepository) GetByID(ctx context.Context, id uuid.UUID) (*
 
 func (r *userMedicationRepository) GetByUserID(ctx context.Context, userID uuid.UUID) ([]*entity.UserMedication, error) {
 	query := `
-		SELECT id, user_id, medication_id, boxes_owned, schedules, start_at, active, created_at
+		SELECT id, user_id, medication_id, boxes_owned, schedules, duration_days, start_at, active, created_at
 		FROM user_medications
 		WHERE user_id = $1
 		ORDER BY created_at DESC
@@ -87,7 +87,7 @@ func (r *userMedicationRepository) GetByUserID(ctx context.Context, userID uuid.
 
 func (r *userMedicationRepository) GetActiveByUserID(ctx context.Context, userID uuid.UUID) ([]*entity.UserMedication, error) {
 	query := `
-		SELECT id, user_id, medication_id, boxes_owned, schedules, start_at, active, created_at
+		SELECT id, user_id, medication_id, boxes_owned, schedules, duration_days, start_at, active, created_at
 		FROM user_medications
 		WHERE user_id = $1 AND active = true
 		ORDER BY created_at DESC
@@ -125,7 +125,7 @@ func (r *userMedicationRepository) scanUserMedications(rows *sql.Rows) ([]*entit
 
 		err := rows.Scan(
 			&um.ID, &um.UserID, &um.MedicationID, &um.BoxesOwned,
-			&schedulesJSON, &um.StartAt, &um.Active, &um.CreatedAt)
+			&schedulesJSON, &um.DurationDays, &um.StartAt, &um.Active, &um.CreatedAt)
 		if err != nil {
 			return nil, err
 		}
