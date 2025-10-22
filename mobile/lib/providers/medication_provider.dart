@@ -126,6 +126,11 @@ class MedicationProvider with ChangeNotifier {
     notifyListeners();
 
     try {
+      // Request notification permission if this is the first medication
+      if (_userMedications.isEmpty) {
+        await _notificationService.requestPermissions();
+      }
+
       final userMedication =
           await _medicationService.createUserMedication(request);
       _userMedications.add(userMedication);

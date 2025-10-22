@@ -18,10 +18,4 @@ class EnvConfig {
 
   static String get environment => _environment;
   static String get apiBaseUrl => _apiBaseUrl;
-
-  // Print current configuration (useful for debugging)
-  static void printConfig() {
-    print('Environment: $_environment');
-    print('API Base URL: $_apiBaseUrl');
-  }
 }

@@ -1,8 +1,8 @@
 import 'medication.dart';
 
 class MedicationSchedule {
-  final String timeSlot; // "morning", "afternoon", "evening", "night"
-  final int doseAmount;
+  final String timeSlot; // "morning", "noon", "evening", "night"
+  final double doseAmount;
 
   MedicationSchedule({
     required this.timeSlot,
@@ -12,7 +12,7 @@ class MedicationSchedule {
   factory MedicationSchedule.fromJson(Map<String, dynamic> json) {
     return MedicationSchedule(
       timeSlot: json['time_slot'] ?? '',
-      doseAmount: json['dose_amount'] ?? 0,
+      doseAmount: (json['dose_amount'] ?? 0).toDouble(),
     );
   }
 
