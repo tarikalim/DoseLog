@@ -4,12 +4,11 @@ A medication tracking and reminder application that helps users manage their med
 
 ## Features
 
-- User authentication and authorization
-- Medication database management
 - Personalized medication schedules with configurable time slots
 - Medication intake logging and history tracking
-- RESTful API with Swagger documentation
-- Cross-platform mobile application
+- Reminder with notification according to set medication times
+- Detailed medication instructions
+- Cross-platform mobile support
 
 ## Technology Stack
 
@@ -28,4 +27,3 @@ A medication tracking and reminder application that helps users manage their med
 
 ---
 
-**Note:** I created this for myself, no documentation.
